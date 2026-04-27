@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CALCPRO — Industrial Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- Scanline overlay -->
+  <div class="scanlines"></div>
+  <!-- Grid bg -->
+  <div class="grid-bg"></div>
+
+  <div class="app">
+
+    <!-- ====== LEFT PANEL — TAPE / HISTORY ====== -->
+    <div class="panel-tape" id="tapePanel">
+      <div class="panel-header">
+        <span class="panel-title">OPERATION TAPE</span>
+        <button class="tape-clear" id="tapeClear">CLR</button>
+      </div>
+      <div class="tape-scroll" id="tapeScroll">
+        <div class="tape-empty" id="tapeEmpty">— No operations —</div>
+      </div>
+      <div class="tape-footer">
+        <div class="tape-stat">
+          <span class="stat-label">ENTRIES</span>
+          <span class="stat-val" id="tapeCount">0</span>
+        </div>
+        <div class="tape-stat">
+          <span class="stat-label">LAST</span>
+          <span class="stat-val" id="tapeLast">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== CENTER — MAIN CALCULATOR ====== -->
+    <div class="calc-body">
+
+      <!-- Header bar -->
+      <div class="calc-header">
+        <div class="brand">
+          <span class="brand-dot"></span>
+          <span class="brand-name">CALCPRO</span>
+          <span class="brand-model">MK-IV</span>
+        </div>
+        <div class="mode-tabs">
+          <button class="mode-tab active" data-mode="standard">STD</button>
+          <button class="mode-tab" data-mode="scientific">SCI</button>
+          <button class="mode-tab" data-mode="programmer">PROG</button>
+        </div>
+        <div class="status-indicators">
+          <div class="indicator" id="ind-mem" title="Memory">M</div>
+          <div class="indicator" id="ind-inv">INV</div>
+          <div class="indicator active" id="ind-rad">DEG</div>
+        </div>
+      </div>
+
+      <!-- Display -->
+      <div class="display-block">
+        <div class="display-meta">
+          <div class="meta-left">
+            <span class="mode-label" id="modeLabel">STANDARD</span>
+          </div>
+          <div class="meta-right">
+            <span class="mem-indicator" id="memIndicator"></span>
+          </div>
+        </div>
+        <div class="expression-line" id="expressionLine">&nbsp;</div>
+        <div class="main-display" id="mainDisplay">0</div>
+        <div class="display-sub">
+          <span class="sub-base" id="subBase"></span>
+          <span class="sub-words" id="subWords"></span>
+        </div>
+      </div>
+
+      <!-- Standard Keypad -->
+      <div class="keypad standard-pad" id="standardPad">
+
+        <!-- Memory Row -->
+        <button class="k k-mem" data-fn="mc">MC</button>
+        <button class="k k-mem" data-fn="mr">MR</button>
+        <button class="k k-mem" data-fn="ms">MS</button>
+        <button class="k k-mem" data-fn="mplus">M+</button>
+        <button class="k k-mem" data-fn="mminus">M−</button>
+
+        <!-- Row 1 -->
+        <button class="k k-fn" data-fn="clear">AC</button>
+        <button class="k k-fn" data-fn="ce">CE</button>
+        <button class="k k-fn" data-fn="backspace">⌫</button>
+        <button class="k k-fn" data-fn="percent">%</button>
+        <button class="k k-op" data-op="÷">÷</button>
+
+        <!-- Row 2 -->
+        <button class="k k-num" data-d="7">7</button>
+        <button class="k k-num" data-d="8">8</button>
+        <button class="k k-num" data-d="9">9</button>
+        <button class="k k-fn" data-fn="negate">±</button>
+        <button class="k k-op" data-op="×">×</button>
+
+        <!-- Row 3 -->
+        <button class="k k-num" data-d="4">4</button>
+        <button class="k k-num" data-d="5">5</button>
+        <button class="k k-num" data-d="6">6</button>
+        <button class="k k-fn" data-fn="recip">1/x</button>
+        <button class="k k-op" data-op="−">−</button>
+
+        <!-- Row 4 -->
+        <button class="k k-num" data-d="1">1</button>
+        <button class="k k-num" data-d="2">2</button>
+        <button class="k k-num" data-d="3">3</button>
+        <button class="k k-fn" data-fn="sqrt">√</button>
+        <button class="k k-op" data-op="+">+</button>
+
+        <!-- Row 5 -->
+        <button class="k k-num k-zero" data-d="0">0</button>
+        <button class="k k-fn" data-fn="sqr">x²</button>
+        <button class="k k-num" data-fn="dot">.</button>
+        <button class="k k-eq" data-fn="equals" colspan="2">=</button>
+
+      </div>
+
+      <!-- Scientific Keypad (hidden by default) -->
+      <div class="keypad sci-pad hidden" id="sciPad">
+
+        <!-- Row A -->
+        <button class="k k-sci" data-fn="inv">INV</button>
+        <button class="k k-sci" data-fn="sin">sin</button>
+        <button class="k k-sci" data-fn="cos">cos</button>
+        <button class="k k-sci" data-fn="tan">tan</button>
+        <button class="k k-sci" data-fn="deg">DEG</button>
+
+        <!-- Row B -->
+        <button class="k k-sci" data-fn="pi">π</button>
+        <button class="k k-sci" data-fn="e">e</button>
+        <button class="k k-sci" data-fn="log">log</button>
+        <button class="k k-sci" data-fn="ln">ln</button>
+        <button class="k k-sci" data-fn="pow10">10ˣ</button>
+
+        <!-- Row C -->
+        <button class="k k-sci" data-fn="pow">xʸ</button>
+        <button class="k k-sci" data-fn="exp">EXP</button>
+        <button class="k k-sci" data-fn="abs">|x|</button>
+        <button class="k k-sci" data-fn="factorial">n!</button>
+        <button class="k k-sci" data-fn="cbrt">∛</button>
+
+        <!-- Memory Row -->
+        <button class="k k-mem" data-fn="mc">MC</button>
+        <button class="k k-mem" data-fn="mr">MR</button>
+        <button class="k k-mem" data-fn="ms">MS</button>
+        <button class="k k-mem" data-fn="mplus">M+</button>
+        <button class="k k-mem" data-fn="mminus">M−</button>
+
+        <!-- Row 1 -->
+        <button class="k k-fn" data-fn="clear">AC</button>
+        <button class="k k-fn" data-fn="ce">CE</button>
+        <button class="k k-fn" data-fn="backspace">⌫</button>
+        <button class="k k-fn" data-fn="percent">%</button>
+        <button class="k k-op" data-op="÷">÷</button>
+
+        <!-- Row 2 -->
+        <button class="k k-num" data-d="7">7</button>
+        <button class="k k-num" data-d="8">8</button>
+        <button class="k k-num" data-d="9">9</button>
+        <button class="k k-fn" data-fn="negate">±</button>
+        <button class="k k-op" data-op="×">×</button>
+
+        <!-- Row 3 -->
+        <button class="k k-num" data-d="4">4</button>
+        <button class="k k-num" data-d="5">5</button>
+        <button class="k k-num" data-d="6">6</button>
+        <button class="k k-fn" data-fn="recip">1/x</button>
+        <button class="k k-op" data-op="−">−</button>
+
+        <!-- Row 4 -->
+        <button class="k k-num" data-d="1">1</button>
+        <button class="k k-num" data-d="2">2</button>
+        <button class="k k-num" data-d="3">3</button>
+        <button class="k k-fn" data-fn="sqrt">√</button>
+        <button class="k k-op" data-op="+">+</button>
+
+        <!-- Row 5 -->
+        <button class="k k-num k-zero" data-d="0">0</button>
+        <button class="k k-fn" data-fn="sqr">x²</button>
+        <button class="k k-num" data-fn="dot">.</button>
+        <button class="k k-eq" data-fn="equals">=</button>
+
+      </div>
+
+      <!-- Programmer Keypad -->
+      <div class="keypad prog-pad hidden" id="progPad">
+
+        <!-- Base selectors -->
+        <div class="base-row">
+          <button class="base-btn active" data-base="10">DEC</button>
+          <button class="base-btn" data-base="16">HEX</button>
+          <button class="base-btn" data-base="8">OCT</button>
+          <button class="base-btn" data-base="2">BIN</button>
+        </div>
+
+        <!-- Hex letters -->
+        <div class="hex-row" id="hexRow">
+          <button class="k k-hex" data-d="A">A</button>
+          <button class="k k-hex" data-d="B">B</button>
+          <button class="k k-hex" data-d="C">C</button>
+          <button class="k k-hex" data-d="D">D</button>
+          <button class="k k-hex" data-d="E">E</button>
+          <button class="k k-hex" data-d="F">F</button>
+        </div>
+
+        <!-- Bitwise ops -->
+        <div class="bitwise-row">
+          <button class="k k-bit" data-fn="and">AND</button>
+          <button class="k k-bit" data-fn="or">OR</button>
+          <button class="k k-bit" data-fn="xor">XOR</button>
+          <button class="k k-bit" data-fn="not">NOT</button>
+          <button class="k k-bit" data-fn="lsh">LSH</button>
+          <button class="k k-bit" data-fn="rsh">RSH</button>
+        </div>
+
+        <!-- Standard grid -->
+        <button class="k k-fn" data-fn="clear">AC</button>
+        <button class="k k-fn" data-fn="ce">CE</button>
+        <button class="k k-fn" data-fn="backspace">⌫</button>
+        <button class="k k-fn" data-fn="negate">±</button>
+        <button class="k k-op" data-op="÷">÷</button>
+
+        <button class="k k-num" data-d="7">7</button>
+        <button class="k k-num" data-d="8">8</button>
+        <button class="k k-num" data-d="9">9</button>
+        <button class="k k-fn" data-fn="mod">MOD</button>
+        <button class="k k-op" data-op="×">×</button>
+
+        <button class="k k-num" data-d="4">4</button>
+        <button class="k k-num" data-d="5">5</button>
+        <button class="k k-num" data-d="6">6</button>
+        <button class="k k-fn" data-fn="recip">1/x</button>
+        <button class="k k-op" data-op="−">−</button>
+
+        <button class="k k-num" data-d="1">1</button>
+        <button class="k k-num" data-d="2">2</button>
+        <button class="k k-num" data-d="3">3</button>
+        <button class="k k-fn" data-fn="sqrt">√</button>
+        <button class="k k-op" data-op="+">+</button>
+
+        <button class="k k-num k-zero" data-d="0">0</button>
+        <button class="k k-fn" data-fn="sqr">x²</button>
+        <button class="k k-num" data-fn="dot">.</button>
+        <button class="k k-eq" data-fn="equals">=</button>
+
+      </div>
+
+    </div>
+
+    <!-- ====== RIGHT PANEL — UNIT CONVERTER ====== -->
+    <div class="panel-right" id="rightPanel">
+      <div class="panel-header">
+        <span class="panel-title">CONVERTER</span>
+      </div>
+
+      <div class="conv-type">
+        <button class="conv-tab active" data-conv="length">LEN</button>
+        <button class="conv-tab" data-conv="weight">WGT</button>
+        <button class="conv-tab" data-conv="temp">TMP</button>
+        <button class="conv-tab" data-conv="area">AREA</button>
+      </div>
+
+      <div class="conv-body">
+        <div class="conv-row">
+          <select class="conv-select" id="convFromUnit"></select>
+          <input class="conv-input" id="convFromVal" type="number" placeholder="0" value="1"/>
+        </div>
+        <div class="conv-arrow">⇅</div>
+        <div class="conv-row">
+          <select class="conv-select" id="convToUnit"></select>
+          <div class="conv-result" id="convResult">—</div>
+        </div>
+        <button class="conv-use" id="convUse">USE RESULT →</button>
+      </div>
+
+      <div class="panel-header" style="margin-top:16px">
+        <span class="panel-title">QUICK KEYS</span>
+      </div>
+      <div class="quick-grid">
+        <button class="qk" data-val="1000">1K</button>
+        <button class="qk" data-val="1000000">1M</button>
+        <button class="qk" data-val="1000000000">1B</button>
+        <button class="qk" data-val="3.14159265">π</button>
+        <button class="qk" data-val="2.71828182">e</button>
+        <button class="qk" data-val="1.41421356">√2</button>
+        <button class="qk" data-val="1.61803398">φ</button>
+        <button class="qk" data-val="0.01">1%</button>
+      </div>
+
+      <div class="panel-header" style="margin-top:16px">
+        <span class="panel-title">LAST 5</span>
+      </div>
+      <div class="last5" id="last5">
+        <div class="tape-empty">No results yet</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="calculator.js"></script>
+</body>
+</html>
